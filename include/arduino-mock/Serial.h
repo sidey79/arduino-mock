@@ -17,6 +17,10 @@ using ::testing::DoDefault;
 #define BIN 2
 
 
+
+class __FlashStringHelper;
+
+
 /**
   \see #SoftwareSerialFake
 */
@@ -37,6 +41,8 @@ class SerialFake {
     uint8_t available();
     uint8_t read();
     uint8_t at(const uint8_t index);
+    uint8_t readBytes(char buffer[], uint8_t length);
+    uint8_t readBytesUntil(char terminator, char buffer[], uint8_t length);
 
   private:
     static const uint8_t buffer_size = 128;
@@ -52,6 +58,7 @@ class SerialMock {
     MOCK_METHOD1(write, size_t(uint8_t));
     MOCK_METHOD1(write, size_t(const char *str));
     MOCK_METHOD2(write, size_t(const uint8_t *buffer, size_t size));
+    MOCK_METHOD2(write, size_t(const char *buffer, size_t size));
 
     MOCK_METHOD1(print, size_t(const char[]));
     MOCK_METHOD1(print, size_t(char));
@@ -61,7 +68,8 @@ class SerialMock {
     MOCK_METHOD2(print, size_t(long, int));
     MOCK_METHOD2(print, size_t(unsigned long, int));
     MOCK_METHOD2(print, size_t(double, int));
-
+    MOCK_METHOD1(print, size_t(__FlashStringHelper *));
+    
     MOCK_METHOD1(println, size_t(const char[]));
     MOCK_METHOD1(println, size_t(char));
     MOCK_METHOD2(println, size_t(unsigned char, int));
@@ -71,10 +79,15 @@ class SerialMock {
     MOCK_METHOD2(println, size_t(unsigned long, int));
     MOCK_METHOD2(println, size_t(double, int));
     MOCK_METHOD0(println, size_t(void));
+    MOCK_METHOD1(println, size_t(__FlashStringHelper *));
 
     MOCK_METHOD1(begin, uint8_t(uint32_t));
     MOCK_METHOD0(available, uint8_t());
     MOCK_METHOD0(read, uint8_t());
+    MOCK_METHOD2(readBytes,size_t(const char[], uint8_t) );
+    MOCK_METHOD3(readBytesUntil,size_t(uint8_t, const char[], uint8_t) );
+
+
     MOCK_METHOD0(flush, void());
     MOCK_METHOD0(end, void());
 
@@ -118,9 +131,9 @@ class SerialMock {
         ON_CALL(*this, at(_))
             .WillByDefault(Invoke(&fake_, &SerialFake::at));
     }*/
-
    private:
-    SerialFake fake_;  // Keeps an instance of the fake in the mock.
+     SerialFake fake_;  // Keeps an instance of the fake in the mock.
+    
 };
 
 
@@ -141,6 +154,7 @@ class Serial_ {
     virtual size_t print(long, int = DEC);
     virtual size_t print(unsigned long, int = DEC);
     virtual size_t print(double, int = 2);
+    virtual size_t print(__FlashStringHelper *);
 
     virtual size_t println(const char[]);
     virtual size_t println(char);
@@ -151,15 +165,20 @@ class Serial_ {
     virtual size_t println(unsigned long, int = DEC);
     virtual size_t println(double, int = 2);
     virtual size_t println(void);
+    virtual size_t println(__FlashStringHelper *);
 
     virtual size_t write(uint8_t);
     virtual size_t write(const char *str);
     virtual size_t write(const uint8_t *buffer, size_t size);
-
+    virtual size_t write(const char *buffer, size_t size);
+    
     virtual uint8_t begin(uint32_t);
 
     virtual uint8_t available();
     virtual uint8_t read();
+    virtual uint8_t readBytes(char buffer[], uint8_t length);
+    virtual uint8_t readBytesUntil(uint8_t terminator, char buffer[], uint8_t length);
+
 
     virtual void flush();
 

@@ -128,6 +128,15 @@ size_t Serial_::print(double num, int digits) {
   return gSerialMock->print(num, digits);
 }
 
+size_t Serial_::print(__FlashStringHelper *s) {
+  if (printToCout) {
+    std::cout << s << std::endl;
+    return 0;
+  }
+  assert (gSerialMock != NULL);
+  return gSerialMock->print(s);
+}
+
 size_t Serial_::println(const char *s) {
   if (printToCout) {
     std::cout << s << std::endl;
@@ -176,6 +185,16 @@ size_t Serial_::println(double num, int digits) {
   return gSerialMock->println(num, digits);
 }
 
+size_t Serial_::println(__FlashStringHelper *s) {
+  if (printToCout) {
+    std::cout << s << std::endl;
+    return 0;
+  }
+  assert (gSerialMock != NULL);
+  return gSerialMock->println(s);
+}
+
+
 size_t Serial_::println(void) {
   if (printToCout) {
     std::cout << std::endl;
@@ -220,18 +239,34 @@ uint8_t Serial_::read() {
   return gSerialMock->read();
 }
 
+uint8_t Serial_::readBytes(char buffer[], uint8_t length)
+{
+   assert (gSerialMock != NULL);
+   return gSerialMock->readBytes(buffer, length);
+}
+
+uint8_t Serial_::readBytesUntil(uint8_t terminator, char buffer[], uint8_t length)
+{
+  assert (gSerialMock != NULL);
+  return gSerialMock->readBytesUntil(terminator, buffer, length);
+  
+}
+
 uint8_t Serial_::operator [] (const uint8_t index) {
   assert (gSerialMock != NULL);
   return (*gSerialMock)[index];
 }
 
 Serial_::operator bool() {
-    assert (gSerialMock != NULL);
-    return true;
+  assert (gSerialMock != NULL);
+  return true;
 }
+
+
 
 // Preinstantiate Objects
 Serial_ Serial;
+
 
 void SerialFake::buffer_load(uint8_t buffer_0[], const uint8_t len) {
     assert (len <= buffer_size);
@@ -256,4 +291,27 @@ uint8_t SerialFake::at(const uint8_t index) {
     assert(buffer_head + index < buffer_tail);
 
     return buffer[buffer_head + index];
+}
+
+uint8_t SerialFake::readBytes(char buffer[], uint8_t length)
+{
+    size_t count = 0;
+    while (count < length && available() ) {
+      buffer[count] = read();
+      count ++;
+    }
+    return count;
+}
+
+uint8_t SerialFake::readBytesUntil(char terminator, char buffer[], uint8_t length)
+{
+    uint8_t count = 0;
+    char c;
+    while (count < length && available()) {
+      c = read();
+      if (c == terminator) break;
+      buffer[count] = c;
+      count ++;
+    }
+    return count;
 }
