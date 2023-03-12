@@ -119,6 +119,16 @@ class SerialMock {
         mock_buffer_load((uint8_t*)buffer, len, ignore_calls);
     }
 
+    void DelegateToSerialFake() {
+          ON_CALL(*this, available())
+              .WillByDefault(Invoke(&fake_, &SerialFake::available));
+          ON_CALL(*this, read())
+              .WillByDefault(Invoke(&fake_, &SerialFake::read));
+          ON_CALL(*this, at(_))
+              .WillByDefault(Invoke(&fake_, &SerialFake::at));
+    }
+
+  
     /**
       \brief Constructor. Sets default mock actions for available, read and operator [],
              to be redirected to SerialFake
