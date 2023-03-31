@@ -84,8 +84,8 @@ class SerialMock {
     MOCK_METHOD1(begin, uint8_t(uint32_t));
     MOCK_METHOD0(available, uint8_t());
     MOCK_METHOD0(read, uint8_t());
-    MOCK_METHOD2(readBytes,size_t(const char[], uint8_t) );
-    MOCK_METHOD3(readBytesUntil,size_t(uint8_t, const char[], uint8_t) );
+    MOCK_METHOD(uint8_t ,readBytes,(char[], uint8_t));
+    MOCK_METHOD(uint8_t, readBytesUntil, (uint8_t, const char[], uint8_t) );
 
 
     MOCK_METHOD0(flush, void());
@@ -117,6 +117,21 @@ class SerialMock {
     }
     void mock_buffer_load(char buffer[], const uint8_t len, bool ignore_calls = true) {
         mock_buffer_load((uint8_t*)buffer, len, ignore_calls);
+    }
+
+    void DelegateToSerialFake() {
+            ON_CALL(*this, available).WillByDefault([this](void) {
+              return fake_.available();
+            });
+            ON_CALL(*this, read).WillByDefault([this](void) {
+              return fake_.read();
+            });
+            ON_CALL(*this, at).WillByDefault([this](const uint8_t index) {
+              return fake_.at(index);
+            });
+            ON_CALL(*this, readBytes).WillByDefault([this](char buffer[], uint8_t length) {
+              return fake_.readBytes(buffer,length);
+            });
     }
 
     /**
