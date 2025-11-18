@@ -32,6 +32,8 @@ class Stream : public Print {
     virtual size_t readBytes( uint8_t *buffer, size_t length) = 0;
 
     virtual size_t write(const uint8_t *buffer, size_t size) = 0;
+    virtual size_t write(const char *str) = 0;
+    virtual size_t write(const uint8_t buffer) = 0;
 
     // virtual size_t readBytesUntil( char terminator, char *buffer, size_t length);
     // virtual size_t readBytesUntil( char terminator, uint8_t *buffer, size_t length) { return readBytesUntil(terminator, (char *)buffer, length); }
