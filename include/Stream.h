@@ -74,9 +74,10 @@ class StreamMock : public Stream {
     // virtual String readStringUntil(char terminator);
 
     //Print functions
-    MOCK_METHOD(size_t, write, (const uint8_t*, size_t size), (override));
+    MOCK_METHOD(size_t, write, (const uint8_t *buffer, size_t size), (override));
     MOCK_METHOD(size_t, write, (const char *str), (override));
-    MOCK_METHOD(size_t, write, (const uint8_t buffer), (override))};
+    MOCK_METHOD(size_t, write, (const uint8_t buffer), (override));
 
+};
 
 #endif
